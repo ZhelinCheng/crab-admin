@@ -1,6 +1,11 @@
 <template>
   <div class="tasks">
-    <div class="tasks-panel"></div>
+    <div class="tasks-panel">
+      <el-input placeholder="搜索任务" class="input-with-select">
+        <el-button slot="append" icon="el-icon-search"></el-button>
+      </el-input>
+      <el-button type="primary" icon="el-icon-edit">新建任务</el-button>
+    </div>
     <el-table
       class="tasks-list"
       :data="tableData"
@@ -60,14 +65,23 @@
         </template>
       </el-table-column>
     </el-table>
+    <Editor v-show="editor.show" />
   </div>
 </template>
 
 <script>
+import Editor from '@/components/Editor.vue'
+
 export default {
   name: 'tasks',
+  components: {
+    Editor
+  },
   data () {
     return {
+      editor: {
+        show: true
+      },
       tableData: [{
         created_at: '2016-05-02',
         title: '测试任务',

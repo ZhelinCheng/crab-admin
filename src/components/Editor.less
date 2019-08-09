@@ -1,0 +1,84 @@
+/**
+ * Created by ChengZheLin on 2019/8/9.
+ */
+
+.editor {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    background-color: #fff;
+    
+    .editor-ctx,
+    .editor-panel {
+        float: left;
+        height: 100%;
+    }
+    
+    .editor-ctx {
+        width: calc(100% - 390px)
+    }
+    
+    .editor-panel {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 390px;
+        background-color: #2d8cf0;
+        .box {
+            width: 90%;
+        }
+        
+        .editor-panel__title {
+            font-weight: bold;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+            background: rgba(0,0,0,.5);
+            border-radius: 30px;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        .editor-panel__setting {
+            margin-bottom: 20px;
+            padding: 20px;
+            width: 100%;
+            border-radius: 4px;
+            background-color: white;
+            
+            .el-form-item__label {
+                padding-bottom: 0;
+            }
+            
+            .el-form-item {
+                margin-bottom: 12px;
+            }
+            
+            .btn-submit {
+                margin-top: 10px;
+                width: 100%;
+            }
+        }
+        
+        .editor-panel__btn {
+            width: 100%;
+            .btn-format,
+            .btn-close {
+                padding: 12px 20px;
+                width: 50%;
+                background-color: #252d47;
+                border: none;
+                color: #fff;
+                font-size: 12px;
+                
+                &:hover {
+                    background-color: #26304d;
+                }
+            }
+        }
+    }
+}

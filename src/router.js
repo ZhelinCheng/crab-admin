@@ -15,7 +15,7 @@ export default new Router({
       component: Main,
       children: [
         {
-          path: '',
+          path: '/tasks',
           component: () => import('./views/tasks.vue')
         }
       ]
