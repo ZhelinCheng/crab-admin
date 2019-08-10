@@ -4,18 +4,23 @@
       <el-input placeholder="搜索任务" class="input-with-select">
         <el-button slot="append" icon="el-icon-search"></el-button>
       </el-input>
-      <el-button type="primary" icon="el-icon-edit">新建任务</el-button>
+      <el-button @click="newAddTask" type="primary" icon="el-icon-edit">新建任务</el-button>
     </div>
     <el-table
       class="tasks-list"
+      height="82%"
       :data="table.list"
       stripe
       v-loading="table.loading"
       style="width: 100%">
       <el-table-column
-        width="160"
         prop="created_at"
         label="创建时间"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="expire_date"
+        label="过期时间"
       >
       </el-table-column>
       <el-table-column
@@ -32,18 +37,14 @@
         label="插入表">
       </el-table-column>
       <el-table-column
-        prop="error_time"
         label="错误延迟">
+        <template slot-scope="scope">
+          {{ scope.row.error_time }}s
+        </template>
       </el-table-column>
       <el-table-column
         prop="type_lable"
         label="类型">
-      </el-table-column>
-      <el-table-column
-        width="160"
-        prop="expire_date"
-        label="过期时间"
-      >
       </el-table-column>
       <el-table-column
         label="启动"
@@ -82,13 +83,33 @@
       @current-change="getTasksList"
       :page-count="table.pages">
     </el-pagination>
-    <Editor v-show="editor.show" />
+    <Editor
+      v-show="editor.show"
+      v-model="editor.task"
+      :newItem="editor.new"
+      @close="editor.show = false"
+    />
   </div>
 </template>
 
 <script>
 import Editor from '@/components/Editor.vue'
-import { apiGetTasks, apiPutItem, apiDelItem } from '@/request'
+import {
+  apiGetTasks,
+  apiPutItem,
+  apiDelItem,
+  apiGetItem
+} from '@/request'
+
+const _TASK_TPL = JSON.stringify({
+  title: '',
+  table: '',
+  cron: '',
+  type: 1,
+  error_time: 0,
+  expire_date: 1861891200000,
+  code: ''
+})
 
 export default {
   name: 'tasks',
@@ -98,7 +119,8 @@ export default {
   data () {
     return {
       editor: {
-        show: false
+        show: false,
+        task: JSON.parse(_TASK_TPL)
       },
       table: {
         list: [],
@@ -160,9 +182,40 @@ export default {
         this.table.loading = false
       }
     },
-    handleEdit (index, row) {
-      console.log(index, row)
+
+    /**
+     * 新添加任务
+     */
+    newAddTask () {
+      this.editor.show = true
+      this.editor.task = JSON.parse(_TASK_TPL)
     },
+
+    /**
+     * 更新任务
+     * @param index
+     * @param row
+     * @returns {Promise<void>}
+     */
+    async handleEdit (index, row) {
+      try {
+        const res = await apiGetItem({
+          tid: row.tid
+        })
+        this.editor.show = true
+        this.editor.task = {
+          ...res,
+          expire_date: res.expire_date * 1000
+        }
+      } catch (e) {}
+    },
+
+    /**
+     * 删除
+     * @param index
+     * @param row
+     * @returns {Promise<void>}
+     */
     async handleDelete (index, row) {
       try {
         await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {

@@ -3,7 +3,7 @@
  * Features:
  */
 
-import { get, put, del } from './http'
+import { get, put, del, post } from './http'
 
 /**
  * 获取任务列表
@@ -20,7 +20,16 @@ export async function apiGetTasks (params) {
  * @returns {Promise<void>}
  */
 export async function apiPutItem (params) {
-  return put('/tasks/item', params)
+  return put('/tasks/item-update', params)
+}
+
+/**
+ * 添加任务
+ * @param params
+ * @returns {Promise<void>}
+ */
+export async function apiAddItem (params) {
+  return post('/tasks/item-add', params)
 }
 
 /**
@@ -29,5 +38,14 @@ export async function apiPutItem (params) {
  * @returns {Promise<void>}
  */
 export async function apiDelItem (params) {
-  return del('/tasks/item', params)
+  return del('/tasks/item-del', params)
+}
+
+/**
+ * 获取任务详情
+ * @param params
+ * @returns {Promise<void>}
+ */
+export async function apiGetItem (params) {
+  return get('/tasks/item-info', params)
 }
