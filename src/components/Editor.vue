@@ -1,12 +1,14 @@
 <template>
   <div class="editor">
-    <div id="ace-editor" ref="ace" class="editor-ctx">
-      const task = {
-      save () {
-      // 保存数据
-      console.log(111)
-      }
-      }
+    <div class="editor-ctx">
+      <div class="rec" ref="ace" >
+        function () {}
+      </div>
+      <div class="console">
+        <h3 class="console-title">控制台</h3>
+        <div class="console-ctx">
+        </div>
+      </div>
     </div>
     <div class="editor-panel">
       <div class="box">
@@ -16,27 +18,41 @@
             <el-form-item label="标题" prop="pass">
               <el-input type="text"  autocomplete="off"></el-input>
             </el-form-item>
-            <el-form-item label="插入表" prop="pass">
-              <el-input type="text"  autocomplete="off"></el-input>
-            </el-form-item>
             <el-form-item label="定时" prop="pass">
               <el-input type="text"  autocomplete="off"></el-input>
             </el-form-item>
-            <el-form-item label="类型" prop="pass">
+            <el-form-item label="插入表" prop="pass">
               <el-input type="text"  autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="类型">
+              <el-select v-model="value" placeholder="请选择">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+              </el-select>
             </el-form-item>
             <el-form-item label="错误延迟" prop="pass">
               <el-input type="text"  autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="过期时间">
+              <el-date-picker
+                v-model="value1"
+                type="datetime"
+                placeholder="选择日期时间">
+              </el-date-picker>
             </el-form-item>
             <el-button type="primary" class="btn-submit">创建任务</el-button>
           </el-form>
         </div>
         <el-button-group class="editor-panel__btn">
+          <el-button size="medium" class="btn-test">测试任务</el-button>
           <el-button size="medium" class="btn-format">格式化</el-button>
           <el-button size="medium" class="btn-close">关闭</el-button>
         </el-button-group>
       </div>
-
     </div>
   </div>
 </template>
@@ -54,6 +70,16 @@ let editor, beautify
 
 export default {
   name: 'Editor',
+  data () {
+    return {
+      options: [{
+        value: 1,
+        label: '所有'
+      }],
+      value1: '',
+      value: 1
+    }
+  },
   mounted () {
     this.initEditor()
   },

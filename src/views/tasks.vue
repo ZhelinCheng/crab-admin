@@ -8,10 +8,12 @@
     </div>
     <el-table
       class="tasks-list"
-      :data="tableData"
+      :data="table.list"
       stripe
+      v-loading="table.loading"
       style="width: 100%">
       <el-table-column
+        width="160"
         prop="created_at"
         label="创建时间"
       >
@@ -34,8 +36,14 @@
         label="错误延迟">
       </el-table-column>
       <el-table-column
-        prop="type"
+        prop="type_lable"
         label="类型">
+      </el-table-column>
+      <el-table-column
+        width="160"
+        prop="expire_date"
+        label="过期时间"
+      >
       </el-table-column>
       <el-table-column
         label="启动"
@@ -44,6 +52,7 @@
           <el-switch
             :active-value="1"
             :inactive-value="0"
+            @change="onOpenChange(scope.row)"
             v-model="scope.row.open"
             active-color="#13ce66"
             inactive-color="#ff4949">
@@ -65,12 +74,21 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      v-show="table.pages"
+      class="tasks-pager"
+      background
+      layout="prev, pager, next"
+      @current-change="getTasksList"
+      :page-count="table.pages">
+    </el-pagination>
     <Editor v-show="editor.show" />
   </div>
 </template>
 
 <script>
 import Editor from '@/components/Editor.vue'
+import { apiGetTasks, apiPutItem, apiDelItem } from '@/request'
 
 export default {
   name: 'tasks',
@@ -80,24 +98,95 @@ export default {
   data () {
     return {
       editor: {
-        show: true
+        show: false
       },
-      tableData: [{
-        created_at: '2016-05-02',
-        title: '测试任务',
-        table: 'tt_test',
-        cron: '* * * * * *',
-        type: '所有',
-        error_time: null,
-        open: 0
-      }]
+      table: {
+        list: [],
+        pages: 0
+      }
     }
   },
+  async created () {
+    await this.getTasksList()
+  },
   methods: {
+    /**
+     * 改变启动状态
+     * @param item
+     * @returns {Promise<void>}
+     */
+    async onOpenChange (item) {
+      try {
+        this.table.loading = true
+        let success = await apiPutItem({
+          where: {
+            tid: item.tid
+          },
+          update: {
+            open: item.open
+          }
+        })
+
+        if (success) {
+          this.$message.success(`启动状态修改成功，当前状态：${item.open ? '开启' : '关闭'}`)
+        } else {
+          item.open = item.open ? 0 : 1
+          this.$message.error(`启动状态修改失败`)
+        }
+        this.table.loading = false
+      } catch (e) {
+        this.table.loading = false
+      }
+    },
+
+    /**
+     * 获取任务列表
+     * @param page
+     * @param limit
+     * @returns {Promise<void>}
+     */
+    async getTasksList (page = 1, limit = 16) {
+      try {
+        this.table.loading = true
+        const data = await apiGetTasks({
+          page,
+          limit
+        })
+        this.table = {
+          loading: false,
+          ...data
+        }
+      } catch (e) {
+        this.table.loading = false
+      }
+    },
     handleEdit (index, row) {
       console.log(index, row)
     },
-    handleDelete () {}
+    async handleDelete (index, row) {
+      try {
+        await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        const success = await apiDelItem({
+          tid: row.tid
+        })
+
+        if (success) {
+          this.table.list.splice(index, 1)
+          this.$message.success(`删除成功`)
+        } else {
+          // eslint-disable-next-line
+          throw '删除错误'
+        }
+      } catch (e) {
+        if (e !== 'cancel') {
+          this.$message.error(`删除失败`)
+        }
+      }
+    }
   }
 }
 </script>

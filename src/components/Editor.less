@@ -18,14 +18,45 @@
     }
     
     .editor-ctx {
-        width: calc(100% - 390px)
+        width: calc(100% - 360px);
+        display: flex;
+        .rec,
+        .console {
+            height: 100%;
+        }
+        
+        .console {
+            flex-grow: 1;
+        }
+        
+        .rec {
+            flex-grow: 1.2;
+        }
+        
+        .console {
+            font-size: 12px;
+            color: #666;
+        }
+        .console-title {
+            padding: 0 10px;
+            height: 20px;
+            line-height: 18px;
+            background-color: #fff - 30;
+        }
+        
+        .console-ctx {
+            padding: 10px;
+            line-height: 1.8;
+            height: calc(100% - 20px);
+            overflow: auto;
+        }
     }
     
     .editor-panel {
         display: flex;
         justify-content: center;
         align-items: center;
-        width: 390px;
+        width: 360px;
         background-color: #2d8cf0;
         .box {
             width: 90%;
@@ -57,6 +88,11 @@
             .el-form-item {
                 margin-bottom: 12px;
             }
+    
+            .el-date-editor,
+            .el-select {
+                width: 100%;
+            }
             
             .btn-submit {
                 margin-top: 10px;
@@ -65,20 +101,60 @@
         }
         
         .editor-panel__btn {
+            display: flex;
             width: 100%;
             .btn-format,
+            .btn-test,
             .btn-close {
                 padding: 12px 20px;
-                width: 50%;
+                flex-grow: 1;
                 background-color: #252d47;
                 border: none;
                 color: #fff;
                 font-size: 12px;
                 
                 &:hover {
-                    background-color: #26304d;
+                    background-color: #26304d + 20;
                 }
             }
+        }
+    }
+}
+
+@media screen and (max-width: 1366px){
+    .editor {
+        .editor-ctx {
+            display: block;
+            .rec,
+            .console {
+                width: 100%;
+                height: 50%;
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1024px){
+    .editor {
+        overflow: auto;
+        .editor-ctx,
+        .editor-panel {
+            float: none;
+            width: 100%;
+            height: auto;
+        }
+        
+        .editor-ctx {
+            display: block;
+    
+            .rec,
+            .console {
+                height: 400px;
+            }
+        }
+        
+        .editor-panel {
+            padding: 20px 0 ;
         }
     }
 }

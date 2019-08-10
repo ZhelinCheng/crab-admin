@@ -1,5 +1,7 @@
 # crab-admin
 
+Crab项目管理页面。
+
 ## Project setup
 ```
 yarn install
