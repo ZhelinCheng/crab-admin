@@ -49,3 +49,11 @@ export async function apiDelItem (params) {
 export async function apiGetItem (params) {
   return get('/tasks/item-info', params)
 }
+
+export async function login (params) {
+  return post('/users/login', params)
+}
+
+export async function registered (params) {
+  return post('/users/registered', params)
+}

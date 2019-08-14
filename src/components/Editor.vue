@@ -144,9 +144,9 @@ export default {
         const tid = this.taskInfo.tid
         const task = JSON.parse(JSON.stringify(this.taskInfo))
 
-        const codeObj = (new Function(`${code}; return task`))() // eslint-disable-line
-        if (!(codeObj instanceof Object) || !codeObj.request) {
-          return this.$message.error('代码不合规范')
+        const codeObj = (new Function(`const module = {}; ${code}; return module.exports`))() // eslint-disable-line
+        if (!(codeObj instanceof Object) || !codeObj.onRequest) {
+          return this.$message.error('代码不合规范，或未定义onRequest方法')
         }
 
         let success = false
@@ -167,9 +167,8 @@ export default {
           success = await apiAddItem(task)
         }
 
-        console.log(task)
-
         if (success) {
+          this.$emit('close')
           this.$message.success(`${tid ? '更新' : '创建'}任务成功！`)
         } else {
           this.$message.error(`${tid ? '更新' : '创建'}任务失败！`)

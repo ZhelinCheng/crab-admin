@@ -26,7 +26,13 @@ export default new Router({
       component: Default,
       children: [
         {
+          name: 'userLogin',
           path: 'login',
+          component: () => import('./views/user/login.vue')
+        },
+        {
+          name: 'userReg',
+          path: 'registered',
           component: () => import('./views/user/login.vue')
         }
       ]
