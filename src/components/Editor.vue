@@ -5,8 +5,10 @@
       <div class="console">
         <h3 class="console-title">控制台</h3>
         <div class="console-ctx">
-          <p>[进程]: 启动测试任务</p>
-          <p>[Function save]: 测试</p>
+         <!-- #e6a23c-->
+          <p :class="'c-' + (item.type || 'd')" v-for="(item, index) in console" :key="index">
+            [{{item.date}}]：{{item.msg}}
+          </p>
         </div>
       </div>
     </div>
@@ -58,7 +60,7 @@
             <el-form-item label="错误延迟" prop="pass">
               <el-input
                 type="number"
-                v-model="taskInfo.error_time"
+                v-model.number="taskInfo.error_time"
                 max="3600"
                 min="0"
                 step="1"
@@ -77,9 +79,9 @@
           </el-form>
         </div>
         <el-button-group class="editor-panel__btn">
-          <el-button size="medium" class="btn-test">测试任务</el-button>
+          <el-button @click="testCode" size="medium" class="btn-test">测试任务</el-button>
           <el-button @click="beautifyCode" size="medium" class="btn-format">格式化</el-button>
-          <el-button @click="$emit('close')" size="medium" class="btn-close">关闭</el-button>
+          <el-button @click="closeEditor" size="medium" class="btn-close">关闭</el-button>
         </el-button-group>
       </div>
     </div>
@@ -99,7 +101,7 @@ import 'ace-builds/src-noconflict/theme-monokai' // 默认设置的主题
 import 'ace-builds/src-noconflict/mode-javascript' // 默认设置的语言模式
 import 'ace-builds/src-noconflict/snippets/javascript' // 自动提示
 
-let editor, beautify
+let editor, beautify, ws
 
 export default {
   name: 'Editor',
@@ -125,29 +127,97 @@ export default {
   },
   data () {
     return {
+      console: [],
       typesOptions: [{
         value: 1,
         label: '未分类'
-      }],
-      value1: '',
-      value: 1
+      }]
     }
   },
   mounted () {
     this.initEditor()
   },
+  updated () {
+    this.createWebSocket()
+  },
   methods: {
+    logs (msg, type = '', date = '编辑器') {
+      this.console.push({
+        date,
+        type,
+        msg
+      })
+    },
+
+    // 关闭编辑器
+    closeEditor () {
+      ws && ws.close()
+      ws = null
+      this.console = []
+      this.$emit('close')
+    },
+
+    // 测试代码
+    testCode () {
+      const code = editor.getValue()
+      if (!this.checkCode(code)) {
+        return
+      }
+      ws.send(code)
+    },
+
+    // 校验代码
+    checkCode (code) {
+      if (!code) {
+        this.logs('你还没有编写任务代码', 'error')
+        return false
+      }
+
+      try {
+        const codeObj = (new Function(`const module = {}; ${code}; return module.exports`))() // eslint-disable-line
+        if (!(codeObj instanceof Object) || !codeObj.onRequest) {
+          this.logs('代码不合规范，或未定义onRequest方法', 'error')
+          return false
+        }
+
+        return true
+      } catch (e) {
+        console.error(e)
+        this.logs(e.message, 'error')
+        return false
+      }
+    },
+
+    // 创建WebSocket链接
+    createWebSocket () {
+      if (ws) return
+
+      ws = new WebSocket(`ws://${window.location.hostname}:4011`)
+
+      ws.addEventListener('open', (event) => {
+        this.console.push({
+          date: 'WebSocket',
+          type: '',
+          msg: '链接成功'
+        })
+      })
+
+      ws.addEventListener('message', (event) => {
+        console.log('Message from server ', event.data)
+        this.console.push(JSON.parse(event.data))
+      })
+    },
+
     async taskSubmit () {
       try {
         const code = editor.getValue()
+        if (!this.checkCode(code)) {
+          return
+        }
+
         this.taskInfo.code = code
         const tid = this.taskInfo.tid
         const task = JSON.parse(JSON.stringify(this.taskInfo))
-
-        const codeObj = (new Function(`const module = {}; ${code}; return module.exports`))() // eslint-disable-line
-        if (!(codeObj instanceof Object) || !codeObj.onRequest) {
-          return this.$message.error('代码不合规范，或未定义onRequest方法')
-        }
 
         let success = false
         task.expire_date = Math.ceil(task.expire_date / 1000)

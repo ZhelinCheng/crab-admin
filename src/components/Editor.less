@@ -19,18 +19,11 @@
     
     .editor-ctx {
         width: calc(100% - 360px);
-        display: flex;
         .rec,
         .console {
+            display: inline-block;
             height: 100%;
-        }
-        
-        .console {
-            flex-grow: 1;
-        }
-        
-        .rec {
-            flex-grow: 1.2;
+            width: 50%;
         }
         
         .console {
@@ -118,6 +111,14 @@
                 }
             }
         }
+    }
+    
+    .c-error {
+        color: #f56c6c;
+    }
+    
+    .c-warning {
+        color: #e6a23c;
     }
 }
 

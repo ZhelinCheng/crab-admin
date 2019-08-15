@@ -43,7 +43,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="type_lable"
+        prop="label"
         label="类型">
       </el-table-column>
       <el-table-column
@@ -94,6 +94,8 @@
 
 <script>
 import Editor from '@/components/Editor.vue'
+import tinydate from 'tinydate'
+
 import {
   apiGetTasks,
   apiPutItem,
@@ -104,7 +106,7 @@ import {
 const _TASK_TPL = JSON.stringify({
   title: '',
   table: '',
-  cron: '',
+  cron: '0 */5 * * * *',
   type: 1,
   error_time: 0,
   expire_date: 1861891200000,
@@ -170,15 +172,23 @@ export default {
     async getTasksList (page = 1, limit = 16) {
       try {
         this.table.loading = true
+        const stamp = tinydate('{YYYY}-{MM}-{DD} {HH}:{mm}:{ss}')
         const data = await apiGetTasks({
           page,
           limit
         })
+
+        data.list.map(item => {
+          item.created_at = stamp(new Date(item.created_at * 1000))
+          item.expire_date = stamp(new Date(item.expire_date * 1000))
+        })
+
         this.table = {
           loading: false,
           ...data
         }
       } catch (e) {
+        console.error(e)
         this.table.loading = false
       }
     },
