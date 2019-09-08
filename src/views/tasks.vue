@@ -87,6 +87,7 @@
       v-show="editor.show"
       v-model="editor.task"
       :newItem="editor.new"
+      @taskInfoSave="onTaskChange"
       @close="editor.show = false"
     />
   </div>
@@ -122,6 +123,7 @@ export default {
     return {
       editor: {
         show: false,
+        index: 0,
         task: JSON.parse(_TASK_TPL)
       },
       table: {
@@ -134,6 +136,9 @@ export default {
     await this.getTasksList()
   },
   methods: {
+    onTaskChange () {
+      this.getTasksList()
+    },
     /**
      * 改变启动状态
      * @param item
@@ -213,6 +218,7 @@ export default {
           tid: row.tid
         })
         this.editor.show = true
+        this.editor.index = index
         this.editor.task = {
           ...res,
           expire_date: res.expire_date * 1000
@@ -242,7 +248,7 @@ export default {
           this.$message.success(`删除成功`)
         } else {
           // eslint-disable-next-line
-          throw '删除错误'
+          throw new Error('删除错误')
         }
       } catch (e) {
         if (e !== 'cancel') {

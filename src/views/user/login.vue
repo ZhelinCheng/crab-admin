@@ -55,7 +55,7 @@ export default {
 
     rulesPassword (rule, value, callback) {
       if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,16}$/.test(value)) {
-        return callback(new Error('密码输入错误'))
+        return callback(new Error('密码输入错误，8~16位'))
       }
 
       callback()

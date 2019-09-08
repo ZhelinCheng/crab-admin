@@ -238,6 +238,7 @@ export default {
         }
 
         if (success) {
+          this.$emit('taskInfoSave', this.taskInfo)
           this.$emit('close')
           this.$message.success(`${tid ? '更新' : '创建'}任务成功！`)
         } else {
